@@ -1,0 +1,4 @@
+1730139770030.23 - latency: time passed: (inside: 26.566162109375, outside: 26.566162109375), deadline: 16, rusage: 283.495
+1730139774796.4128 - latency: time passed: (inside: 3.271240234375, outside: 3.271240234375), deadline: 12, rusage: 297.04999999999995
+1730139781393.397 - latency: time passed: (inside: 51.84033203125, outside: 51.84033203125), deadline: 12, rusage: 302.90999999999997
+1730139781505.5198 - latency: time passed: (inside: 12.303955078125, outside: 12.303955078125), deadline: 16, rusage: 317.62699999999995
