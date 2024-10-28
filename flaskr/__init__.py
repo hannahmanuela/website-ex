@@ -60,6 +60,8 @@ def add_deadline(deadline):
             sched_setattr(0, attr)
 
             start_time = time.time() * 1000
+            
+            print(str(os.getpid()) + ", tid: ", str(libc.syscall(186)))
 
             # Call the original function
             result = func(*args, **kwargs)
@@ -71,7 +73,7 @@ def add_deadline(deadline):
             time_passed = end_time - start_time
 
             # also print out latency results
-            usage_stats = getrusage(RUSAGE_SELF)
+            usage_stats = getrusage(RUSAGE_THREAD)
 
             # stats are given in seconds, convert to ms
             runtime = usage_stats.ru_utime * 1000 + usage_stats.ru_stime * 1000

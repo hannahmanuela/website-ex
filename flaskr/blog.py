@@ -9,6 +9,8 @@ from werkzeug.exceptions import abort
 from werkzeug.utils import secure_filename
 import os
 
+import ctypes
+
 from .db import get_db
 from . import add_deadline
 
@@ -17,11 +19,16 @@ bp = Blueprint("blog", __name__)
 UPLOAD_FOLDER = '/users/hmng/tutorial/uploads'
 ALLOWED_EXTENSIONS = {'txt'}
 
+libc = ctypes.CDLL(None, use_errno=True)
+
 
 @bp.route("/")
 @add_deadline(16)
 def index():
     """Show all the posts, most recent first."""
+    
+    print(str(os.getpid()) + ", tid: ", str(libc.syscall(186)))
+
     db = get_db()
     posts = db.execute(
         "SELECT p.id, title, body, created, author_id, username"
