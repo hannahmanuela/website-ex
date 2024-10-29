@@ -43,14 +43,21 @@ def sched_setattr(pid, attr):
 
 # define decorator
 
-def add_deadline(deadline):
+def add_deadline(deadline, methods = []):
     def decorator(func):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
 
-            # can use this to check against method type if we want to selectively apply the deadline 
-            # (eg diff deadline for GET vs POST, via passing a dict or via having multiple decorators)
-            # print(request.method)
+            if len(methods) > 0 and request.method not in methods:
+                result = func(*args, **kwargs)
+                print("method ", request.method, " not in the set of allowed ones, skipping")
+                return result
+
+            num_cpus = os.cpu_count()
+            affinity_mask = list(range(2, num_cpus))
+            os.sched_setaffinity(0, affinity_mask)
+
+            affinity = os.sched_getaffinity(0)
 
             ns_per_ms = 1000000
             attr = sched_attr()
@@ -61,8 +68,6 @@ def add_deadline(deadline):
 
             start_time = time.time() * 1000
             
-            print(str(os.getpid()) + ", tid: ", str(libc.syscall(186)))
-
             # Call the original function
             result = func(*args, **kwargs)
 
@@ -129,5 +134,8 @@ def create_app(test_config=None):
     app.add_url_rule("/", endpoint="index")
 
     open("latency.txt", 'w').close()
+
+    affinity_mask = {1}
+    os.sched_setaffinity(0, affinity_mask)
 
     return app

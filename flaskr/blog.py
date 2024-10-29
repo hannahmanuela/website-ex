@@ -23,7 +23,7 @@ libc = ctypes.CDLL(None, use_errno=True)
 
 
 @bp.route("/")
-@add_deadline(16)
+@add_deadline(30, ["GET"])
 def index():
     """Show all the posts, most recent first."""
     
@@ -38,7 +38,7 @@ def index():
     return render_template("blog/index.html", posts=posts)
 
 @bp.route("/<int:id>")
-@add_deadline(8)
+@add_deadline(5, methods=["GET"])
 def get_post(id):
     """Show a single post."""
     post = (
@@ -55,14 +55,11 @@ def get_post(id):
     if post is None:
         abort(404, f"Post id {id} doesn't exist.")
     
-    print(post['title'])
-    print(post['created'])
-    
     return render_template("blog/index.html", posts=[post])
 
 
 @bp.route("/create", methods=("GET", "POST"))
-@add_deadline(12)
+@add_deadline(100, ["POST"])
 def create():
     """Create a new post for the current user."""
     if request.method == "POST":
@@ -77,10 +74,16 @@ def create():
             flash(error)
         else:
             db = get_db()
-            db.execute(
-                "INSERT INTO post (title, body, author_id) VALUES (?, ?, ?)",
-                (title, body, g.user["id"]),
-            )
+            if g.user is None:
+                db.execute(
+                    "INSERT INTO post (title, body, author_id) VALUES (?, ?, ?)",
+                    (title, body, 1),
+                )
+            else:
+                db.execute(
+                    "INSERT INTO post (title, body, author_id) VALUES (?, ?, ?)",
+                    (title, body, g.user["id"]),
+                )
             db.commit()
             return redirect(url_for("blog.index"))
 
@@ -108,7 +111,7 @@ def count_words(filename):
     return d
 
 @bp.route('/docount', methods=['GET', 'POST'])
-@add_deadline(30)
+@add_deadline(1500, methods=["POST"])
 def do_count():
     if request.method == 'POST':
         # check if the post request has the file part
