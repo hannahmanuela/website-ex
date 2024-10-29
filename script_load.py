@@ -12,7 +12,7 @@ import threading
 
 
 
-NUM_REPS = 100
+NUM_REPS = 1000
 
 
 PERCENT_STATIC = 60
