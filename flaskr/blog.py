@@ -27,8 +27,6 @@ libc = ctypes.CDLL(None, use_errno=True)
 def index():
     """Show all the posts, most recent first."""
     
-    print(str(os.getpid()) + ", tid: ", str(libc.syscall(186)))
-
     db = get_db()
     posts = db.execute(
         "SELECT p.id, title, body, created, author_id, username"
