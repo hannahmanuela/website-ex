@@ -14,6 +14,8 @@ import threading
 
 NUM_REPS = 1000
 
+NUM_REQS_LIVE = 50
+
 
 PERCENT_STATIC = 60
 PERCENT_DYNAMIC = 33
@@ -51,6 +53,9 @@ def upload(i):
     print(i, ": ", r)
 
 
+# track number of outstanding requests
+live_threads = []
+
 for i in range(NUM_REPS):
 
     rand_perc = random.uniform(0, 100)
@@ -64,9 +69,12 @@ for i in range(NUM_REPS):
     else:
         t1 = threading.Thread(target=upload, args=(i,))
     
+    live_threads.append(t1)
     t1.start()
 
-    # # sleep for 2 ms
-    # sleep(0.02)
+    while len(live_threads) > NUM_REQS_LIVE:
+        for t in live_threads:
+            if not t.is_alive():
+                live_threads.remove(t)
 
 sleep(1)

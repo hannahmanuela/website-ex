@@ -16,7 +16,7 @@ from . import add_deadline
 
 bp = Blueprint("blog", __name__)
 
-UPLOAD_FOLDER = '/users/hmng/tutorial/uploads'
+UPLOAD_FOLDER = 'uploads'
 ALLOWED_EXTENSIONS = {'txt'}
 
 libc = ctypes.CDLL(None, use_errno=True)
@@ -127,7 +127,7 @@ def do_count():
             file.save(os.path.join(UPLOAD_FOLDER, filename))
             
             # do some processing of the file
-            word_dict = count_words(os.path.join(UPLOAD_FOLDER, filename))
+            word_dict = count_words(os.path.join(os.getcwd(), UPLOAD_FOLDER, filename))
             s = dict(sorted(word_dict.items(), key=lambda item: item[1]))
             l = [(k, v) for (k, v) in s.items()]
             popular_word, file_count = l[0]
