@@ -35,34 +35,52 @@ Install Flaskr::
 
     $ pip install -e .
 
-Or if you are using the main branch, install Flask from source before
-installing Flaskr::
 
-    $ pip install -e ../..
-    $ pip install -e .
-
-
-Run
+Setup w/ different runs
 ---
 
-.. code-block:: text
 
-    $ flask --app flaskr init-db
-    $ flask --app flaskr run --debug
+to run just with flask::
 
-Open http://127.0.0.1:5000 in a browser.
+    flask --app flaskr init-db
+    flask --app flaskr run --debug
 
 
-Test
-----
+to install gunicorn/nginx::
+    
+    pip install gunicorn # make sure you are in the pythong venv
+    sudo apt install nginx
 
-::
+to start gunicorn::
+    gunicorn -w 4 "flaskr:create_app()"
 
-    $ pip install '.[test]'
-    $ pytest
+to create the nginx server::
+    
+    cd /etc/nginx/sites-available
+    sudo vim appname
 
-Run with coverage report::
+put in::
+    
+    server {
+        listen 80;
+        server_name your_domain.com;  # Change to your domain or public IP
 
-    $ coverage run -m pytest
-    $ coverage report
-    $ coverage html  # open htmlcov/index.html in a browser
+        location / {
+            proxy_pass http://127.0.0.1:8000;  # Gunicorn is running on port 8000
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+    }
+
+Check there are no syntax errors::
+
+    sudo ln -s /etc/nginx/sites-available/flaskapp /etc/nginx/sites-enabled/
+    sudo nginx -t
+
+Then start it::
+
+    sudo systemctl restart nginx
+
+

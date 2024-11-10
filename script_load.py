@@ -23,7 +23,7 @@ PERCENT_FG = 6
 PERCENT_BG = 1
 
 # api-endpoint
-BASE_URL = "http://localhost:5000"
+BASE_URL = "http://127.0.0.1:8000"
 
 GET_ONE_URL = BASE_URL + "/36"
 GET_ALL_URL = BASE_URL
@@ -52,6 +52,11 @@ def upload(i):
     r = requests.post(url = UPLOAD_URL, files=file_to_count)
     print(i, ": ", r)
 
+
+# get_one(0)
+# get_all(1)
+# create(2)
+# upload(3)
 
 # track number of outstanding requests
 live_threads = []
