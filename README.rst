@@ -52,6 +52,7 @@ to install gunicorn/nginx::
     sudo apt install nginx
 
 to start gunicorn::
+
     gunicorn -w 4 "flaskr:create_app()"
 
 to create the nginx server::
