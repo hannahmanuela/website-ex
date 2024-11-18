@@ -23,63 +23,55 @@ PERCENT_FG = 6
 PERCENT_BG = 1
 
 # api-endpoint
-BASE_URL = "http://127.0.0.1:8000"
+BASE_URL = "http://127.0.0.1:5000"
 
-GET_ONE_URL = BASE_URL + "/36"
-GET_ALL_URL = BASE_URL
-CREATE_URL = BASE_URL + "/create"
-UPLOAD_URL = BASE_URL + "/docount"
+PAYING_PREDICT_URL = BASE_URL + "/paying-predict"
+FREE_PREDICT_URL = BASE_URL + "/free-predict"
 
 
 post_details = {'title': 'testtt', 'body': 'test bodyy'}
-file_to_count = {'file': open('10mb.txt' ,'rb')}
 
 # sending get request and saving the response as response object
 
-def get_one(i):
-    r = requests.get(url = GET_ONE_URL)
+def paying_predict(i):
+    with open('example_img.png', 'rb') as file:
+        files = {'file': file}
+        r = requests.post(url = PAYING_PREDICT_URL, files=files)
     print(i, ": ", r)
 
-def get_all(i):
-    r = requests.get(url = GET_ALL_URL)
-    print(i, ": ", r)
-
-def create(i):
-    r = requests.post(url = CREATE_URL, data=post_details)
-    print(i, ": ", r)
-
-def upload(i):
-    r = requests.post(url = UPLOAD_URL, files=file_to_count)
+def free_predict(i):
+    with open('example_img.png', 'rb') as file:
+        files = {'file': file}
+        r = requests.post(url = FREE_PREDICT_URL, files=files)
     print(i, ": ", r)
 
 
-# get_one(0)
-# get_all(1)
-# create(2)
-# upload(3)
+free_predict(2)
+paying_predict(1)
 
 # track number of outstanding requests
-live_threads = []
+# could even do explicit admissions control from here
+# live_threads = []
 
-for i in range(NUM_REPS):
+# for i in range(NUM_REPS):
 
-    rand_perc = random.uniform(0, 100)
+#     rand_perc = random.uniform(0, 100)
 
-    if rand_perc < PERCENT_STATIC:
-        t1 = threading.Thread(target=get_one, args=(i,))
-    elif rand_perc < PERCENT_STATIC + PERCENT_DYNAMIC:
-        t1 = threading.Thread(target=get_all, args=(i,))
-    elif rand_perc < PERCENT_STATIC + PERCENT_DYNAMIC + PERCENT_FG:
-        t1 = threading.Thread(target=create, args=(i,))
-    else:
-        t1 = threading.Thread(target=upload, args=(i,))
+#     if rand_perc < PERCENT_STATIC:
+#         t1 = threading.Thread(target=paying_predict, args=(i,))
+#     elif rand_perc < PERCENT_STATIC + PERCENT_DYNAMIC:
+#         t1 = threading.Thread(target=free_predict, args=(i,))
+#     elif rand_perc < PERCENT_STATIC + PERCENT_DYNAMIC + PERCENT_FG:
+#         t1 = threading.Thread(target=paying_predict, args=(i,))
+#     else:
+#         t1 = threading.Thread(target=paying_predict, args=(i,))
     
-    live_threads.append(t1)
-    t1.start()
+#     live_threads.append(t1)
+#     t1.start()
 
-    while len(live_threads) > NUM_REQS_LIVE:
-        for t in live_threads:
-            if not t.is_alive():
-                live_threads.remove(t)
+#     while len(live_threads) > NUM_REQS_LIVE:
+#         for t in live_threads:
+#             if not t.is_alive():
+#                 live_threads.remove(t)
 
 sleep(1)

@@ -115,17 +115,10 @@ def create_app():
     except OSError:
         pass
 
-    # register the database commands
-    from . import db
-
-    db.init_app(app)
-
     # apply the blueprints to the app
-    from . import blog
-    from . import auth
+    from . import model_app
 
-    app.register_blueprint(blog.bp)
-    app.register_blueprint(auth.bp)
+    app.register_blueprint(model_app.bp)
 
     # make url_for('index') == url_for('blog.index')
     # in another app, you might define a separate main index here with
