@@ -27,7 +27,7 @@ BASE_URL = "http://127.0.0.1:5000"
 
 PAYING_PREDICT_URL = BASE_URL + "/paying-predict"
 FREE_PREDICT_URL = BASE_URL + "/free-predict"
-
+TRAIN_PREDICT_URL = BASE_URL + "/train"
 
 post_details = {'title': 'testtt', 'body': 'test bodyy'}
 
@@ -45,9 +45,27 @@ def free_predict(i):
         r = requests.post(url = FREE_PREDICT_URL, files=files)
     print(i, ": ", r)
 
+def train(i):
 
-free_predict(2)
-paying_predict(1)
+    with open("borzoi.png", 'rb') as borzoi, open("impala.png", 'rb') as impala, open("komondor.png", 'rb') as komondor, open("meerkat.png", 'rb') as meerkat, open("vizsla.png", 'rb') as vizsla, open("wallaby.png", 'rb') as wallaby:
+        
+        files = [('files', ('borzoi.jpg', borzoi, 'image/jpeg')),
+        ('files', ('impala.jpg', impala, 'image/jpeg')),
+        ('files', ('komondor.jpg', komondor, 'image/jpeg')),
+        ('files', ('meerkat.jpg', meerkat, 'image/jpeg')),
+        ('files', ('vizsla.jpg', vizsla, 'image/jpeg')),
+        ('files', ('wallaby.jpg', wallaby, 'image/jpeg')),]
+
+        data = { 'labels': ['borzoi', 'impala', 'Komondor', 'meerkat', 'Vizsla', 'wallaby'] }
+
+        r = requests.post(url = TRAIN_PREDICT_URL, files=files, data=data)
+    
+    print(i, ": ", r)
+
+
+free_predict(1)
+paying_predict(2)
+train(3)
 
 # track number of outstanding requests
 # could even do explicit admissions control from here
