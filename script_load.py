@@ -23,7 +23,7 @@ PERCENT_FG = 6
 PERCENT_BG = 1
 
 # api-endpoint
-BASE_URL = "http://127.0.0.1:5000"
+BASE_URL = "http://127.0.0.1:8000"
 
 PAYING_PREDICT_URL = BASE_URL + "/paying-predict"
 FREE_PREDICT_URL = BASE_URL + "/free-predict"
@@ -91,5 +91,3 @@ train(3)
 #         for t in live_threads:
 #             if not t.is_alive():
 #                 live_threads.remove(t)
-
-sleep(1)

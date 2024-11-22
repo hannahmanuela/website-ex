@@ -45,7 +45,7 @@ LABELS = {idx: label for idx, label in enumerate(open('imagenet-simple-labels.js
 
 
 @bp.route('/train', methods=['POST'])
-@add_deadline(2000, methods=['POST'])
+@add_deadline(1000, 2000, methods=['POST'])
 def train_on_batch():
     """Endpoint to train the model on a full batch of images and labels"""
 
@@ -108,7 +108,7 @@ def train_on_batch():
 
 
 @bp.route('/paying-predict', methods=['POST'])
-@add_deadline(180, methods=['POST'])
+@add_deadline(170, 200, methods=['POST'])
 def paying_predict():
     if 'file' not in request.files:
         return jsonify({'error': 'No file part'}), 400
@@ -121,7 +121,7 @@ def paying_predict():
 
 
 @bp.route('/free-predict', methods=['POST'])
-@add_deadline(250, methods=['POST'])
+@add_deadline(170, 300, methods=['POST'])
 def free_predict():
     if 'file' not in request.files:
         return jsonify({'error': 'No file part'}), 400

@@ -42,7 +42,6 @@ Setup w/ different runs
 
 to run just with flask::
 
-    flask --app flaskr init-db
     flask --app flaskr run --debug
 
 
@@ -54,6 +53,11 @@ to install gunicorn/nginx::
 to start gunicorn::
 
     gunicorn -w 4 "flaskr:create_app()"
+
+
+The below is a one-time setup, I think? 
+To start you can just check it using :code:`sudo systemctl status nginx` / restart it using :code:`sudo systemctl restart nginx`
+
 
 to create the nginx server::
     
