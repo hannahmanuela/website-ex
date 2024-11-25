@@ -4,6 +4,7 @@ import functools
 from resource import *
 import time
 from dataclasses import dataclass
+import threading
 
 from flask import Flask, jsonify
 from flask import request
@@ -80,27 +81,29 @@ def do_admission_control(new_proc):
 
     global core_to_proc_mapping
 
-    for core_num, curr_list in core_to_proc_mapping.items():
-        pot_new_list = curr_list + [new_proc]
-        pot_new_list = sorted(pot_new_list, key=lambda proc: proc.deadline)
+    with lock_core_to_proc_mapping:
+        for core_num, curr_list in core_to_proc_mapping.items():
+            pot_new_list = curr_list + [new_proc]
+            pot_new_list = sorted(pot_new_list, key=lambda proc: proc.deadline)
 
-        wait_time = 0
-        fits = True
-        for p in pot_new_list:
-            if p.get_slack() - wait_time < 0:
-                print("doesnt fit, slack is ", p.get_slack(), "but wait time is currently", p.get_expected_comp_left())
-                fits = False
-                break
-            wait_time += p.get_expected_comp_left()
-        
-        if (fits):
-            core_to_proc_mapping[core_num].append(new_proc)
-            return True, core_num
+            wait_time = 0
+            fits = True
+            for p in pot_new_list:
+                if p.get_slack() - wait_time < 0:
+                    print("doesnt fit, slack is ", p.get_slack(), "but wait time is currently", p.get_expected_comp_left())
+                    fits = False
+                    break
+                wait_time += p.get_expected_comp_left()
+            
+            if (fits):
+                core_to_proc_mapping[core_num].append(new_proc)
+                return True, core_num
     
     return False, -1
 
 
 core_to_proc_mapping = {c: [] for c in range(os.cpu_count())}
+lock_core_to_proc_mapping = threading.Lock()
 
 ns_per_ms = 1000000
 
@@ -118,8 +121,11 @@ def add_deadline(max_comp, deadline, methods = []):
             global core_to_proc_mapping
             global ns_per_ms
 
-            new_proc = Proc(libc.gettid(), deadline * ns_per_ms, max_comp * ns_per_ms, curr_time_ms())
-            admitted, core_to_use = do_admission_control(new_proc)
+            usage_stats = getrusage(RUSAGE_THREAD)
+            og_runtime = usage_stats.ru_utime * 1000 + usage_stats.ru_stime * 1000
+
+            this_proc = Proc(libc.gettid(), deadline * ns_per_ms, max_comp * ns_per_ms, curr_time_ms())
+            admitted, core_to_use = do_admission_control(this_proc)
 
             print("admitted? ", admitted)
 
@@ -147,6 +153,9 @@ def add_deadline(max_comp, deadline, methods = []):
             # Call the original function
             result = func(*args, **kwargs)
 
+            with lock_core_to_proc_mapping:
+                core_to_proc_mapping[core_to_use].remove(this_proc)
+
             # "clear" ie reset kernel sched deadline
             attr.sched_runtime = 4 * ns_per_ms
             sched_setattr(0, attr)
@@ -158,7 +167,7 @@ def add_deadline(max_comp, deadline, methods = []):
             usage_stats = getrusage(RUSAGE_THREAD)
 
             # stats are given in seconds, convert to ms
-            runtime = usage_stats.ru_utime * 1000 + usage_stats.ru_stime * 1000
+            runtime = (usage_stats.ru_utime * 1000 + usage_stats.ru_stime * 1000) - og_runtime
             f = open("latency.txt", "a")
             f.write(str(end_time) + " - latency: time passed: (inside: " + str(time_passed) + ", outside: " + str(time_passed) + "), deadline: " + str(deadline) + ", rusage: " + str(runtime) + "\n")
             f.close()

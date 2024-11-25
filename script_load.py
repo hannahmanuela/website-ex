@@ -47,7 +47,7 @@ def free_predict(i):
 
 def train(i):
 
-    with open("borzoi.png", 'rb') as borzoi, open("impala.png", 'rb') as impala, open("komondor.png", 'rb') as komondor, open("meerkat.png", 'rb') as meerkat, open("vizsla.png", 'rb') as vizsla, open("wallaby.png", 'rb') as wallaby:
+    with open("train_examples/borzoi.png", 'rb') as borzoi, open("train_examples/impala.png", 'rb') as impala, open("train_examples/komondor.png", 'rb') as komondor, open("train_examples/meerkat.png", 'rb') as meerkat, open("train_examples/vizsla.png", 'rb') as vizsla, open("train_examples/wallaby.png", 'rb') as wallaby:
         
         files = [('files', ('borzoi.jpg', borzoi, 'image/jpeg')),
         ('files', ('impala.jpg', impala, 'image/jpeg')),

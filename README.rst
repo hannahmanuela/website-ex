@@ -52,7 +52,7 @@ to install gunicorn/nginx::
 
 to start gunicorn::
 
-    gunicorn -w 4 "flaskr:create_app()"
+    gunicorn --workers $(nproc) --threads 1 "flaskr:create_app()"
 
 
 The below is a one-time setup, I think? 
