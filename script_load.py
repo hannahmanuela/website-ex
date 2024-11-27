@@ -12,15 +12,12 @@ import threading
 
 
 
-NUM_REPS = 1000
+NUM_REPS = 100
 
 NUM_REQS_LIVE = 50
 
-
-PERCENT_STATIC = 60
-PERCENT_DYNAMIC = 33
-PERCENT_FG = 6
-PERCENT_BG = 1
+PERCENT_PAID = 60
+PERCENT_FREE = 35
 
 # api-endpoint
 BASE_URL = "http://127.0.0.1:8000"
@@ -63,31 +60,26 @@ def train(i):
     print(i, ": ", r)
 
 
-free_predict(1)
-paying_predict(2)
-train(3)
 
-# track number of outstanding requests
-# could even do explicit admissions control from here
-# live_threads = []
+# MAIN LOOP
+live_threads = []
 
-# for i in range(NUM_REPS):
+for i in range(NUM_REPS):
 
-#     rand_perc = random.uniform(0, 100)
+    rand_perc = random.uniform(0, 100)
 
-#     if rand_perc < PERCENT_STATIC:
-#         t1 = threading.Thread(target=paying_predict, args=(i,))
-#     elif rand_perc < PERCENT_STATIC + PERCENT_DYNAMIC:
-#         t1 = threading.Thread(target=free_predict, args=(i,))
-#     elif rand_perc < PERCENT_STATIC + PERCENT_DYNAMIC + PERCENT_FG:
-#         t1 = threading.Thread(target=paying_predict, args=(i,))
-#     else:
-#         t1 = threading.Thread(target=paying_predict, args=(i,))
-    
-#     live_threads.append(t1)
-#     t1.start()
+    if rand_perc < PERCENT_PAID:
+        t1 = threading.Thread(target=free_predict, args=(i,))
+    elif rand_perc < PERCENT_PAID + PERCENT_FREE:
+        t1 = threading.Thread(target=paying_predict, args=(i,))
+    else:
+        t1 = threading.Thread(target=train, args=(i,))
 
-#     while len(live_threads) > NUM_REQS_LIVE:
-#         for t in live_threads:
-#             if not t.is_alive():
-#                 live_threads.remove(t)
+    live_threads.append(t1)
+    t1.start()
+
+    while len(live_threads) > NUM_REQS_LIVE:
+        for t in live_threads:
+            if not t.is_alive():
+                live_threads.remove(t)
+

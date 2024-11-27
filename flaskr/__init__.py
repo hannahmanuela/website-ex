@@ -81,6 +81,8 @@ def do_admission_control(new_proc):
 
     global core_to_proc_mapping
 
+    print("curr state of the mapping: ", core_to_proc_mapping)
+
     with lock_core_to_proc_mapping:
         for core_num, curr_list in core_to_proc_mapping.items():
             pot_new_list = curr_list + [new_proc]
@@ -97,6 +99,7 @@ def do_admission_control(new_proc):
             
             if (fits):
                 core_to_proc_mapping[core_num].append(new_proc)
+                print("new state of the mapping: ", core_to_proc_mapping)
                 return True, core_num
     
     return False, -1
@@ -127,8 +130,6 @@ def add_deadline(max_comp, deadline, methods = []):
             this_proc = Proc(libc.gettid(), deadline * ns_per_ms, max_comp * ns_per_ms, curr_time_ms())
             admitted, core_to_use = do_admission_control(this_proc)
 
-            print("admitted? ", admitted)
-
             if not admitted:
                 return jsonify({'error': 'admission control rejected'}), 120
 
@@ -154,6 +155,7 @@ def add_deadline(max_comp, deadline, methods = []):
             result = func(*args, **kwargs)
 
             with lock_core_to_proc_mapping:
+                print("proc done, removing ", this_proc)
                 core_to_proc_mapping[core_to_use].remove(this_proc)
 
             # "clear" ie reset kernel sched deadline
